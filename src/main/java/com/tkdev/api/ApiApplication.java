@@ -1,5 +1,6 @@
 package com.tkdev.api;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,20 @@ import com.tkdev.api.domain.Cidade;
 import com.tkdev.api.domain.Cliente;
 import com.tkdev.api.domain.Endereco;
 import com.tkdev.api.domain.Estado;
+import com.tkdev.api.domain.Pagamento;
+import com.tkdev.api.domain.PagamentoComBoleto;
+import com.tkdev.api.domain.PagamentoComCartao;
+import com.tkdev.api.domain.Pedido;
 import com.tkdev.api.domain.Produto;
+import com.tkdev.api.domain.enums.EstadoPagamento;
 import com.tkdev.api.domain.enums.TipoCliente;
 import com.tkdev.api.repositories.CategoriaRepository;
 import com.tkdev.api.repositories.CidadeRepository;
 import com.tkdev.api.repositories.ClienteRepository;
 import com.tkdev.api.repositories.EnderecoRepository;
 import com.tkdev.api.repositories.EstadoRepository;
+import com.tkdev.api.repositories.PagamentoRepository;
+import com.tkdev.api.repositories.PedidoRepository;
 import com.tkdev.api.repositories.ProdutoRepository;
 
 @SpringBootApplication
@@ -41,6 +49,12 @@ public class ApiApplication implements CommandLineRunner {
 
 	@Autowired
 	private EnderecoRepository enderecoRepository;
+
+	@Autowired
+	private PedidoRepository pedidoRepository;
+
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ApiApplication.class, args);
@@ -92,6 +106,23 @@ public class ApiApplication implements CommandLineRunner {
 
 		clienteRepository.saveAll(Arrays.asList(cli1));
 		enderecoRepository.saveAll(Arrays.asList(e1, e2));
+
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2021 10:30"), cli1, e1);
+		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2021 19:35"), cli1, e2);
+
+		Pagamento pgt1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+		ped1.setPagamento(pgt1);
+
+		Pagamento pgt2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2021 00:00"),
+				null);
+		ped2.setPagamento(pgt2);
+
+		cli1.getPedidos().addAll(Arrays.asList(ped1, ped2));
+		
+		pedidoRepository.saveAll(Arrays.asList(ped1,ped2));
+		pagamentoRepository.saveAll(Arrays.asList(pgt1, pgt2));
+
 	}
 
 }
