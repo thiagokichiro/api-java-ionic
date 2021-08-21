@@ -13,6 +13,7 @@ import com.tkdev.api.domain.Cidade;
 import com.tkdev.api.domain.Cliente;
 import com.tkdev.api.domain.Endereco;
 import com.tkdev.api.domain.Estado;
+import com.tkdev.api.domain.ItemPedido;
 import com.tkdev.api.domain.Pagamento;
 import com.tkdev.api.domain.PagamentoComBoleto;
 import com.tkdev.api.domain.PagamentoComCartao;
@@ -25,6 +26,7 @@ import com.tkdev.api.repositories.CidadeRepository;
 import com.tkdev.api.repositories.ClienteRepository;
 import com.tkdev.api.repositories.EnderecoRepository;
 import com.tkdev.api.repositories.EstadoRepository;
+import com.tkdev.api.repositories.ItemPedidoRepository;
 import com.tkdev.api.repositories.PagamentoRepository;
 import com.tkdev.api.repositories.PedidoRepository;
 import com.tkdev.api.repositories.ProdutoRepository;
@@ -55,6 +57,9 @@ public class ApiApplication implements CommandLineRunner {
 
 	@Autowired
 	private PagamentoRepository pagamentoRepository;
+
+	@Autowired
+	private ItemPedidoRepository itemPedidoRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ApiApplication.class, args);
@@ -119,10 +124,23 @@ public class ApiApplication implements CommandLineRunner {
 		ped2.setPagamento(pgt2);
 
 		cli1.getPedidos().addAll(Arrays.asList(ped1, ped2));
-		
-		pedidoRepository.saveAll(Arrays.asList(ped1,ped2));
+
+		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
+
 		pagamentoRepository.saveAll(Arrays.asList(pgt1, pgt2));
 
+		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.00, 1, 2000.00);
+		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.00, 2, 80.00);
+		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.00, 1, 800.00);
+
+		ped1.getItens().addAll(Arrays.asList(ip1, ip2));
+		ped1.getItens().addAll(Arrays.asList(ip1, ip3));
+
+		p1.getItens().addAll(Arrays.asList(ip1));
+		p2.getItens().addAll(Arrays.asList(ip3));
+		p3.getItens().addAll(Arrays.asList(ip2));
+
+		itemPedidoRepository.saveAll(Arrays.asList(ip1, ip2, ip3));
 	}
 
 }
