@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.tkdev.api.domain.Cliente;
 import com.tkdev.api.dto.ClienteDTO;
+import com.tkdev.api.dto.ClienteNewDTO;
 import com.tkdev.api.services.ClienteService;
 
 @RestController
@@ -32,11 +34,20 @@ public class ClienteResource {
 		return ResponseEntity.ok().body(cliente);
 	}
 
+	@RequestMapping(method = RequestMethod.POST)
+	public ResponseEntity<Void> insert(@Valid @RequestBody ClienteNewDTO dto) {
+		Cliente cliente = clienteService.fromDTO(dto);
+		cliente = clienteService.insert(cliente);
+		java.net.URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+				.buildAndExpand(cliente.getId()).toUri();
+		return ResponseEntity.created(uri).build();
+	}
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Void> update(@Valid @RequestBody ClienteDTO categoriaDTO, @PathVariable Integer id) {
-		Cliente categoria = clienteService.fromDTO(categoriaDTO);
-		categoria.setId(id);
-		categoria = clienteService.update(categoria);
+	public ResponseEntity<Void> update(@Valid @RequestBody ClienteDTO clienteDTO, @PathVariable Integer id) {
+		Cliente cliente = clienteService.fromDTO(clienteDTO);
+		cliente.setId(id);
+		cliente = clienteService.update(cliente);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -49,8 +60,7 @@ public class ClienteResource {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<ClienteDTO>> findAll() {
 		List<Cliente> listCliente = clienteService.findAll();
-		// converte cada lista de categoria para o dto em forma de lista também
-		List<ClienteDTO> listClienteDTO = listCliente.stream().map(categoria -> new ClienteDTO(categoria))
+		List<ClienteDTO> listClienteDTO = listCliente.stream().map(cliente -> new ClienteDTO(cliente))
 				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(listClienteDTO);
 	}
@@ -61,8 +71,8 @@ public class ClienteResource {
 			@RequestParam(value = "orderBy", defaultValue = "nome") String orderBy,
 			@RequestParam(value = "direction", defaultValue = "ASC") String direction) {
 		Page<Cliente> listCliente = clienteService.findPage(page, linesPerPage, orderBy, direction);
-		// converte cada lista de categoria para o dto em forma de lista também
-		Page<ClienteDTO> listClienteDTO = listCliente.map(categoria -> new ClienteDTO(categoria));
+		// converte cada lista de cliente para o dto em forma de lista também
+		Page<ClienteDTO> listClienteDTO = listCliente.map(cliente -> new ClienteDTO(cliente));
 		return ResponseEntity.ok().body(listClienteDTO);
 	}
 
