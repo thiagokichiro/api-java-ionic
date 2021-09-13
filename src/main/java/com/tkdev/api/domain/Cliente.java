@@ -38,7 +38,7 @@ public class Cliente implements Serializable {
 	private String cpfOuCNPJ;
 	private Integer tipo;
 
-	// ALL - Se apagar um cliente apaga seus respectivos endereços
+	// ALL - Se apagar um cliente apaga seus respectivos endereços em cascata
 	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
 	private List<Endereco> enderecos = new ArrayList<>();
 
